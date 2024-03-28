@@ -26,7 +26,7 @@ const game = new Phaser.Game(config);
 let palabras = [];
 let palabraActual;
 let textoPalabra;
-let velocidadCaida = 10; // Ajustar la velocidad de caída según sea necesario
+let velocidadCaida = 20; // Ajustar la velocidad de caída según sea necesario
 let tiempoUltimaPalabra = 0;
 let jugador;
 
@@ -46,7 +46,7 @@ function create() {
   this.add.image(300, 450, 'sky'); // Centrar el cielo horizontalmente y alinearlo en la parte superior
 
   // Mostrar el número de vidas
-  this.textoVidas = this.add.text(500, 20, 'Vidas: ' + config.vidas, { fontSize: '24px', fill: '#fff' }).setOrigin(1, 0); // Alineado en la esquina superior derecha
+  this.textoVidas = this.add.text(570, 20, 'Vidas: ' + config.vidas, { fontSize: '24px', fill: '#fff' }).setOrigin(1, 0); // Alineado en la esquina superior derecha
 
   // Agregar al jugador
   jugador = this.physics.add.sprite(300, 800, 'jugador').setScale(0.5); // Crear al jugador en la parte central inferior
@@ -136,7 +136,7 @@ function actualizarPalabra(scene) {
   if (textoPalabra) {
     textoPalabra.destroy();
   }
-  textoPalabra = scene.add.text(Phaser.Math.Between(100, 500), -50, palabraActual, { fontSize: '32px', fill: '#fff' }).setOrigin(0.5);
+  textoPalabra = scene.add.text(Phaser.Math.Between(20, 580), -50, palabraActual, { fontSize: '32px', fill: '#fff' }).setOrigin(0.5);
   scene.physics.world.enable(textoPalabra); // Habilitar la física para la palabra
   textoPalabra.body.setVelocityY(velocidadCaida); // Establecer la velocidad de caída
 }
