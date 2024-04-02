@@ -1,0 +1,10 @@
+obj
+def
+val
+null
+NaN
+void
+import
+export
+static
+private
