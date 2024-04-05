@@ -29,6 +29,7 @@ let wordTexts = []; // Array to store all word texts
 let fallSpeed = 5; // Adjust the fall speed as necessary
 let player;
 let typingWordIndex = -1; // Index of the word currently being typed by the player
+let isTyping = false; // Flag to indicate if the player is currently typing a word
 
 // Function to preload game resources
 function preload() {
@@ -62,6 +63,58 @@ function create() {
   // Add the player
   player = this.physics.add.sprite(300, 800, "player").setScale(0.5); // Create the player at the bottom center
 
+  // Handle keyboard events
+this.input.keyboard.on(
+  "keydown",
+  function (event) {
+    const pressedKey = event.key.toLowerCase();
+    let typedCorrectLetter = false;
+
+    // Check if the pressed key matches the first letter of any word
+    for (let i = 0; i < wordTexts.length; i++) {
+      const wordText = wordTexts[i];
+      if (wordText.text.toLowerCase().startsWith(pressedKey)) {
+        // Found a word that starts with the pressed key
+        typingWordIndex = i;
+        isTyping = true; // Set the typing flag
+        typedCorrectLetter = true;
+        break;
+      }
+    }
+
+    if (typingWordIndex !== -1) {
+      // Player is currently typing a word
+      const currentWordText = wordTexts[typingWordIndex];
+      const currentWord = currentWordText.text.toLowerCase();
+      const nextLetter = currentWord[0].toLowerCase();
+
+      if (pressedKey === nextLetter || currentWord.length === 1) {
+        // Remove the first letter of the word
+        const updatedWord = currentWord.substring(1);
+        currentWordText.setText(updatedWord);
+
+        // If the word is empty, destroy it and update if there are more available
+        if (updatedWord === "") {
+          currentWordText.destroy();
+          wordTexts.splice(typingWordIndex, 1); // Remove the word from the array
+          typingWordIndex = -1; // Reset typing index
+          isTyping = false; // Reset typing flag
+          if (config.lives > 0 && wordTexts.length > 0) {
+            // If there are more words available, allow typing any word
+            return;
+          }
+        }
+      } else if (!typedCorrectLetter) {
+        // The player made a mistake, add error handling logic here
+      }
+    } else if (!typedCorrectLetter) {
+      // The player pressed a key that doesn't match the first letter of any word
+      // Handle the error or display a message to the player
+    }
+  },
+  this
+);
+
   // Load and display words for the current wave
   for (let i = 0; i < words.length; i++) {
     const x = Phaser.Math.Between(20, 580); // Random x position
@@ -75,49 +128,6 @@ function create() {
       wordTexts.push(wordText); // Add the word text to the array
     }, delay);
   }
-
-  // Handle keyboard events
-  this.input.keyboard.on(
-    "keydown",
-    function (event) {
-      const pressedKey = event.key.toLowerCase();
-      if (typingWordIndex === -1) {
-        // Player is not typing any word, find the word that matches the pressed key
-        for (let i = 0; i < wordTexts.length; i++) {
-          const wordText = wordTexts[i];
-          if (wordText.text.toLowerCase().startsWith(pressedKey)) {
-            typingWordIndex = i;
-            break;
-          }
-        }
-      } else {
-        // Player is currently typing a word
-        const currentWordText = wordTexts[typingWordIndex];
-        const currentWord = currentWordText.text.toLowerCase();
-        const nextLetter = currentWord[0].toLowerCase();
-
-        if (pressedKey === nextLetter) {
-          // Remove the first letter of the word
-          const updatedWord = currentWord.substring(1);
-          currentWordText.setText(updatedWord);
-
-          // If the word is empty, destroy it and update if there are more available
-          if (updatedWord === "") {
-            currentWordText.destroy();
-            wordTexts.splice(typingWordIndex, 1); // Remove the word from the array
-            typingWordIndex = -1; // Reset typing index
-            if (config.lives > 0 && wordTexts.length > 0) {
-              // If there are more words available, allow typing the next word
-              typingWordIndex = 0;
-            }
-          }
-        } else {
-          // The player made a mistake, add error handling logic here
-        }
-      }
-    },
-    this
-  );
 }
 
 // Game update function
@@ -155,7 +165,7 @@ function update() {
       const length = Math.sqrt(
         directionX * directionX + directionY * directionY
       );
-      const wordSpeed = 1; // Define the speed of words
+      const wordSpeed = 1; // Define the (horizontal) speed of words
       const velocityX = directionX / length;
       const velocityY = directionY / length;
 
