@@ -63,26 +63,27 @@ function create() {
   // Add the player
   player = this.physics.add.sprite(300, 800, "player").setScale(0.5); // Create the player at the bottom center
 
-  // Handle keyboard events
+// Handle keyboard events
 this.input.keyboard.on(
   "keydown",
   function (event) {
     const pressedKey = event.key.toLowerCase();
-    let typedCorrectLetter = false;
 
-    // Check if the pressed key matches the first letter of any word
-    for (let i = 0; i < wordTexts.length; i++) {
-      const wordText = wordTexts[i];
-      if (wordText.text.toLowerCase().startsWith(pressedKey)) {
-        // Found a word that starts with the pressed key
-        typingWordIndex = i;
-        isTyping = true; // Set the typing flag
-        typedCorrectLetter = true;
-        break;
+    // Check if the player is currently typing any word
+    if (!isTyping) {
+      // Player is not typing any word, allow typing only if the pressed key matches the first letter of any word
+      for (let i = 0; i < wordTexts.length; i++) {
+        const wordText = wordTexts[i];
+        if (wordText.text.toLowerCase().startsWith(pressedKey)) {
+          // Found a word that starts with the pressed key
+          typingWordIndex = i;
+          isTyping = true; // Set the typing flag
+          break;
+        }
       }
     }
 
-    if (typingWordIndex !== -1) {
+    if (isTyping && typingWordIndex !== -1) {
       // Player is currently typing a word
       const currentWordText = wordTexts[typingWordIndex];
       const currentWord = currentWordText.text.toLowerCase();
@@ -104,10 +105,10 @@ this.input.keyboard.on(
             return;
           }
         }
-      } else if (!typedCorrectLetter) {
+      } else {
         // The player made a mistake, add error handling logic here
       }
-    } else if (!typedCorrectLetter) {
+    } else {
       // The player pressed a key that doesn't match the first letter of any word
       // Handle the error or display a message to the player
     }
